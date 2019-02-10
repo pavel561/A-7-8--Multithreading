@@ -54,27 +54,26 @@ namespace Advanced_Lesson_6_Multithreading
         public static void LA8_P2_5()
         {
 			string pathFolder = @"D:\Emails\";
-			string FileName = "EmailAdress";
-			DirectoryInfo dirInfo = new DirectoryInfo(pathFolder);
-			if(dirInfo.Exists)
+			string fileName = "EmailAdress";
+			//Сохраниение файлов в одном потоке
+			for (int i = 0; i < 50; i++)
 			{
-				Random rnd = new Random();
-				for (int i = 0; i < 50; i++)
+				DirectoryInfo dirInfo = new DirectoryInfo(pathFolder);
+				if (dirInfo.Exists)
 				{
-					ThreadPool.QueueUserWorkItem((object state) =>
+					using (StreamWriter sw = new StreamWriter($"{dirInfo.FullName + fileName}_{i + 1}.txt", true))
 					{
-						using (StreamWriter sw = new StreamWriter($"{dirInfo.FullName + FileName}_{rnd.Next(50)}.txt", true))
-						{
-							sw.WriteLine($"Текст рассылки для письма {i + 1}");
-							sw.Close();
-							System.Threading.Thread.Sleep(500);
-						}
-					});
-					
+						sw.WriteLine($"Текст рассылки для почтового ящика {i + 1}");
+						sw.Close();
+						Thread.Sleep(500);
+					}
 				}
 			}
-        }
+		}
+		static public void FileWrite(object state)
+		{
 
+		}
         /// <summary>
         /// Написать код, который в цикле (10 итераций) эмулирует посещение 
         /// сайта увеличивая на единицу количество посещений для каждой из страниц.  
