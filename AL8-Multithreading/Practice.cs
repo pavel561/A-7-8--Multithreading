@@ -91,6 +91,8 @@ namespace Advanced_Lesson_6_Multithreading
 			}
 			Console.ReadKey();  //Ожидаем ввода символа, поскольку меобходимо, чтобы отработали все потоки ThreadPool-а
 								//Иначе, при закрытии приложения, завершаются все выполняемые потоки.
+
+			
 		}
 
 		/// <summary>
@@ -101,13 +103,56 @@ namespace Advanced_Lesson_6_Multithreading
         {            
         }
 
-        /// <summary>
-        /// LA8.P4/X. Отредактировать приложение по “рассылке” “писем”. 
-        /// Сохранять все “тела” “писем” в один файл. Использовать блокировку потоков, чтобы избежать проблем синхронизации.  
-        /// </summary>
-        public static void LA8_P4_5()
-        {            
-        }
+		/// <summary>
+		/// LA8.P4/X. Отредактировать приложение по “рассылке” “писем”. 
+		/// Сохранять все “тела” “писем” в один файл. Использовать блокировку потоков, чтобы избежать проблем синхронизации.  
+		/// </summary>
+		public static void LA8_P4_5()
+		{
+			var obj = new Object();
+			int counter = 0;
+			string pathFolder = @"D:\Emails\";
+			string fileName = "EmailAdress";
+			//==========================================================
+			//Сохраниение писем в один файл через ThreadPool с блокировкой
+			fileName = "ThreadPoolLock";
+			DirectoryInfo dirInfo = new DirectoryInfo(pathFolder);
+			
+			for (int i = 0; i < 50; i++)
+			{
+				var index = i;//Переменная, объявленная внутри цикла, необходима для правильного захвата переменной i
+				ThreadPool.QueueUserWorkItem((object state) =>
+				{
+
+					//DirectoryInfo dirInfo = new DirectoryInfo(pathFolder);
+					//StreamWriter sw = new StreamWriter($"{dirInfo.FullName + fileName}_Lock.txt");
+					if (dirInfo.Exists)
+					{
+						lock (obj)
+						{
+							using (StreamWriter sw = new StreamWriter($"{dirInfo.FullName + fileName}.txt",true))
+							{
+								sw.WriteLine($"Текст рассылки для почтового ящика {index + 1}");
+								Thread.Sleep(500);
+								sw.Close();
+								counter++;
+							}
+						}
+					}
+				});
+			}
+			while(counter < 50)
+			{
+				Console.Clear();
+				Console.WriteLine($"Идет отправка писем. Отправлено {counter} из 50");
+				Thread.Sleep(100);
+			}
+			Console.Clear();
+			Console.WriteLine($"Идет отправка писем. Отправлено {counter} из 50");
+			Console.WriteLine($"Отправка писем завершена.");
+			Console.ReadKey();
+		}
+
 
         /// <summary>
         /// LA8.P5/5. Асинхронная “отсылка” “письма” с блокировкой вызывающего потока 
