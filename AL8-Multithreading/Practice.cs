@@ -69,16 +69,35 @@ namespace Advanced_Lesson_6_Multithreading
 					}
 				}
 			}
+			//Сохраниение файлов через ThreadPool
+			fileName = "ThreadPool";
+			for (int i = 0; i < 50; i++)
+			{
+				var index = i;//Переменная, объявленная внутри цикла, необходима для правильного захвата переменной i
+				ThreadPool.QueueUserWorkItem((object state) =>
+				{
+					DirectoryInfo dirInfo = new DirectoryInfo(pathFolder);
+					Random rnd = new Random();
+					if (dirInfo.Exists)
+					{
+						using (StreamWriter sw = new StreamWriter($"{dirInfo.FullName + fileName}_{index + 1}.txt", true))
+						{
+							sw.WriteLine($"Текст рассылки для почтового ящика {index + 1}");
+							sw.Close();
+							Thread.Sleep(1000);
+						}
+					}
+				});
+			}
+			Console.ReadKey();  //Ожидаем ввода символа, поскольку меобходимо, чтобы отработали все потоки ThreadPool-а
+								//Иначе, при закрытии приложения, завершаются все выполняемые потоки.
 		}
-		static public void FileWrite(object state)
-		{
 
-		}
-        /// <summary>
-        /// Написать код, который в цикле (10 итераций) эмулирует посещение 
-        /// сайта увеличивая на единицу количество посещений для каждой из страниц.  
-        /// </summary>
-        public static void LA8_P3_5()
+		/// <summary>
+		/// Написать код, который в цикле (10 итераций) эмулирует посещение 
+		/// сайта увеличивая на единицу количество посещений для каждой из страниц.  
+		/// </summary>
+		public static void LA8_P3_5()
         {            
         }
 
